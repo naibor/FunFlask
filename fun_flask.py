@@ -80,6 +80,41 @@ class CandidatesApi(Resource):
 
     
 
+class PersonApi(Resource):
+    decorators = [auth.login_required]
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument('name', type=str, location = 'json')
+        self.reqparse.add_argument('describe', type=str, location = 'json')
+        self.reqparse.add_argument('single', type=bool, location = 'json')
+        super(PersonApi,self).__init__()
+
+    def get(self):
+        person = [person for person in candidates if person['id']== id]
+        if len(person) == 0:
+            abort(404)
+        return {'person':marshal(person[0],candidate_fields)}
+
+    def put(self, id):
+        # filter() goes throught each item assigning it a value
+        # filter(lambda t:t['id']== 0, tasks)
+        person = [person for person in candidates if person['id'] == id]
+        # assign person for every person in candidates and check if the id value is equal to the id 
+        if len(person) == 0:
+            abort(404)
+        person = person[0]
+        args = self.reqparse.parse_args()
+        for k, v in args.items():
+            if v != None:
+                person[k] = v
+        return {'person': marshal(candidates, candidates_fields)}, 201
+
+    def delete(self, id):
+        person = [person for person in candidates if person['id'] == id]
+        if len(person) == 0:
+            abort(404)
+            candidates.remove(person[0])
+            return {'result': True}
 
 # add_resource registers the route with the framework using given endpoints
 
